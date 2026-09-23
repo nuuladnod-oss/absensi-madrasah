@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { authorizationService, type UserRole, type UserRoles } from '@/services/authorizationService';
 
 export interface AuthorizationContextValue {
@@ -23,12 +23,12 @@ export interface AuthorizationContextValue {
  * All checks are memoized and update when user roles change.
  */
 export function useAuthorization(): AuthorizationContextValue {
-  const { profile, state, refresh: refreshAuth } = useAuth();
+  const { user, status, refresh: refreshAuth } = useAuth();
   const [userRoles, setUserRoles] = useState<UserRoles | null>(null);
   const [loading, setLoading] = useState(true);
 
   const loadRoles = useCallback(async () => {
-    if (!profile || state !== 'authenticated') {
+    if (!user || status !== 'authenticated') {
       setUserRoles(null);
       setLoading(false);
       return;
@@ -36,14 +36,14 @@ export function useAuthorization(): AuthorizationContextValue {
 
     setLoading(true);
     try {
-      const roles = await authorizationService.loadUserRoles(profile.id);
+      const roles = await authorizationService.loadUserRoles(user.id);
       setUserRoles(roles);
     } catch {
       setUserRoles({ roles: [], homeroomClassIds: [], taughtClassIds: [] });
     } finally {
       setLoading(false);
     }
-  }, [profile, state]);
+  }, [user, status]);
 
   useEffect(() => {
     loadRoles();
@@ -86,12 +86,12 @@ export function useAuthorization(): AuthorizationContextValue {
   }, [userRoles]);
 
   const refresh = useCallback(async () => {
-    if (profile) {
-      authorizationService.invalidateCache(profile.id);
+    if (user) {
+      authorizationService.invalidateCache(user.id);
     }
     await refreshAuth();
     await loadRoles();
-  }, [profile, refreshAuth, loadRoles]);
+  }, [user, refreshAuth, loadRoles]);
 
   return {
     userRoles,

@@ -7,14 +7,6 @@ export type UserRole =
   | 'SISWA' 
   | 'KEPALA_MADRASAH';
 
-export const ROLE_HIERARCHY: Record<UserRole, UserRole[]> = {
-  ADMIN: ['ADMIN', 'GURU', 'WALI_KELAS', 'SISWA', 'KEPALA_MADRASAH'],
-  GURU: ['GURU'],
-  WALI_KELAS: ['WALI_KELAS'],
-  SISWA: ['SISWA'],
-  KEPALA_MADRASAH: ['KEPALA_MADRASAH'],
-};
-
 export interface UserRoles {
   roles: UserRole[];
   homeroomClassIds: string[];
@@ -40,6 +32,37 @@ class AuthorizationService {
   private rolesCache: Map<string, UserRoles> = new Map();
 
   /**
+   * Get the active academic period ID for the user's madrasah.
+   * Returns null if not found.
+   */
+  private async getActivePeriodId(userId: string): Promise<string | null> {
+    // Get user's madrasah from profile (could be from teachers/students table)
+    const { data: teacherData } = await supabase
+      .from('teachers')
+      .select('madrasah_id')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    const { data: studentData } = await supabase
+      .from('students')
+      .select('madrasah_id')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    const madrasahId = teacherData?.madrasah_id ?? studentData?.madrasah_id;
+    if (!madrasahId) return null;
+
+    const { data: periodData } = await supabase
+      .from('academic_periods')
+      .select('id')
+      .eq('madrasah_id', madrasahId)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    return periodData?.id ?? null;
+  }
+
+  /**
    * Load roles for a user from the database.
    * Reads from user_roles table (RLS: user can read own roles, admin can read all).
    */
@@ -62,21 +85,29 @@ class AuthorizationService {
     // Load homeroom class IDs if user has WALI_KELAS role
     let homeroomClassIds: string[] = [];
     if (roles.includes('WALI_KELAS')) {
-      const { data: homeroomData } = await supabase
-        .from('classes')
-        .select('id')
-        .eq('homeroom_teacher_id', userId);
-      homeroomClassIds = homeroomData?.map(c => c.id) ?? [];
+      const periodId = await this.getActivePeriodId(userId);
+      if (periodId) {
+        const { data: homeroomData } = await supabase
+          .from('class_homeroom_assignments')
+          .select('class_id')
+          .eq('academic_period_id', periodId)
+          .eq('teacher_id', userId)
+          .eq('is_active', true);
+        homeroomClassIds = homeroomData?.map(c => c.class_id) ?? [];
+      }
     }
 
     // Load taught class IDs if user has GURU role
+    // Note: class_subjects table doesn't exist in schema v1.0
+    // This will be populated when subject scheduling is implemented
     let taughtClassIds: string[] = [];
     if (roles.includes('GURU')) {
-      const { data: taughtData } = await supabase
-        .from('class_subjects')
-        .select('class_id')
-        .eq('teacher_id', userId);
-      taughtClassIds = [...new Set(taughtData?.map(c => c.class_id) ?? [])];
+      const periodId = await this.getActivePeriodId(userId);
+      if (periodId) {
+        // For now, we can't determine taught classes without class_subjects table
+        // This will be implemented when subject scheduling is added
+        taughtClassIds = [];
+      }
     }
 
     const userRoles: UserRoles = {

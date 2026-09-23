@@ -1,0 +1,36 @@
+GitHub.com
+nuuladnod-oss
+@nuuladnod-oss
+
+PS D:\Documents\GitHub\absensi-madrasah> git init
+Reinitialized existing Git repository in D:/Documents/GitHub/absensi-madrasah/.git/
+PS D:\Documents\GitHub\absensi-madrasah> git branch -M main
+PS D:\Documents\GitHub\absensi-madrasah> git remote add origin https://github.com/nuuladnod-oss/absensi-madrasah.git                      
+PS D:\Documents\GitHub\absensi-madrasah> git remote -v
+origin  https://github.com/nuuladnod-oss/absensi-madrasah.git (fetch)
+origin  https://github.com/nuuladnod-oss/absensi-madrasah.git (push)
+PS D:\Documents\GitHub\absensi-madrasah> 
+git remote add origin https://github.com/nuuladnod-oss/absensi-madrasah.git
+
+
+====================================================================
+Supabase
+====================================================================
+Project name
+absensi-madrasah
+Naonatuh24.
+====================================================================
+Project name
+Displayed throughout the dashboard.
+absensi-madrasah
+====================================================================
+Project ID
+Reference used in APIs and URLs.
+ulalwhqfculdxavhdkey
+====================================================================
+Project region
+Southeast Asia (Singapore)
+ap-southeast-1
+====================================================================
+====================================================================
+====================================================================

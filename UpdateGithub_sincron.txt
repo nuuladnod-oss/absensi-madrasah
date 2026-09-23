@@ -16,3 +16,10 @@ Setelah diisi, periksa apakah tombol biru Commit to main sudah bisa diklik.
 
 2. Matikan Konversi Otomatis Git (Paling Direkomendasikan)Agar peringatan LF/CRLF ini hilang selamanya dan tidak mengganggu proses commit, Anda bisa mengatur Git agar menerima format apa adanya.Buka VS Code, lalu buka terminal (tekan Ctrl + ~ atau klik Terminal > New Terminal), kemudian ketik perintah berikut dan tekan Enter:bashgit config --global autocrlf false
 Gunakan kode dengan hati-hati.Setelah menjalankan perintah ini, restart aplikasi GitHub Desktop Anda.
+
+
+```bash
+git add .
+git commit -m "chore: project init - vite react ts tailwind + supabase client"
+git push -u origin main
+```

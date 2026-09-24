@@ -2,6 +2,7 @@ import React from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AuthGuard, AdminGuard, TeacherGuard, HomeroomGuard, StudentGuard, HeadmasterGuard, PublicGuard } from './guards';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
+import { AdminDashboardPage } from '@/features/admin/pages/AdminDashboardPage';
 import MainLayout from '@/layouts/MainLayout';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 
@@ -38,15 +39,6 @@ function ReportsPlaceholder() {
     <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs">
       <h1 className="text-2xl font-semibold text-slate-800">Laporan</h1>
       <p className="mt-2 text-sm text-slate-500">Halaman laporan (placeholder)</p>
-    </div>
-  );
-}
-
-function AdminDashboardPlaceholder() {
-  return (
-    <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs">
-      <h1 className="text-2xl font-semibold text-slate-800">Admin Dashboard</h1>
-      <p className="mt-2 text-sm text-slate-500">Halaman admin (placeholder)</p>
     </div>
   );
 }
@@ -139,7 +131,7 @@ function AppRoutes() {
               path: 'admin/*',
               element: (
                 <AdminGuard>
-                  <AdminDashboardPlaceholder />
+                  <AdminDashboardPage />
                 </AdminGuard>
               ),
             },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useAuthorization } from '@/hooks/useAuthorization';
 import { StateAlert } from '@/components/ui/StateAlert';
@@ -70,9 +70,42 @@ export function RoleGuard({ children, roles, fallback }: RoleGuardProps) {
 }
 
 /**
- * Admin-only guard.
+ * Admin-only guard (for nested routes with Outlet).
  */
-export function AdminGuard({ children }: { children: React.ReactNode }) {
+export function AdminGuard() {
+  const { status } = useAuth();
+  const { loading, canAccessAdmin } = useAuthorization();
+
+  if (status === 'loading' || loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-100">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-slate-500">Memeriksa hak akses...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!canAccessAdmin()) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-100 p-4">
+        <StateAlert
+          variant="error"
+          title="Akses Ditolak"
+          message="Anda tidak memiliki hak akses untuk halaman ini."
+        />
+      </div>
+    );
+  }
+
+  return <Outlet />;
+}
+
+/**
+ * Admin-only guard (for direct children).
+ */
+export function AdminGuardWithChildren({ children }: { children: React.ReactNode }) {
   return (
     <RoleGuard roles={['ADMIN']}>
       {children}

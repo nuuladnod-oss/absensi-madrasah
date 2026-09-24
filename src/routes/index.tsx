@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AuthGuard, AdminGuard, TeacherGuard, HomeroomGuard, StudentGuard, HeadmasterGuard, PublicGuard } from './guards';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
 import { AdminDashboardPage } from '@/features/admin/pages/AdminDashboardPage';
+import { MadrasahListPage } from '@/features/madrasah/pages/MadrasahListPage';
 import MainLayout from '@/layouts/MainLayout';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 
@@ -128,12 +129,18 @@ function AppRoutes() {
             },
             // Admin routes
             {
-              path: 'admin/*',
-              element: (
-                <AdminGuard>
-                  <AdminDashboardPage />
-                </AdminGuard>
-              ),
+              path: 'admin',
+              element: <AdminGuard />,
+              children: [
+                {
+                  index: true,
+                  element: <AdminDashboardPage />,
+                },
+                {
+                  path: 'madrasah',
+                  element: <MadrasahListPage />,
+                },
+              ],
             },
             // Teacher routes
             {
